@@ -1,18 +1,12 @@
 <template>
     <div class="wrapper">
-        <div class="returnButton">
-            <router-link to="/" >
-                <button>back</button>
-            </router-link>
-        </div>
-        <hr>
         <h1>Simon Says</h1>
         <div class="game">
             <div class="game-board">
-                <div class="tile red" id="1" v-on:click="clickElement(1)"></div>
-                <div class="tile blue" id="2" v-on:click="clickElement(2)" ></div>
-                <div class="tile orange" id="3" v-on:click="clickElement(3)"></div>
-                <div class="tile green"  id="4" v-on:click="clickElement(4)"></div>
+                <button class="tile red" id="1" v-on:click="clickElement(1)" :disabled="gameButton.isDisabled"></button>
+                <button class="tile blue" id="2" v-on:click="clickElement(2)" :disabled="gameButton.isDisabled"></button>
+                <button class="tile orange" id="3" v-on:click="clickElement(3)" :disabled="gameButton.isDisabled"></button>
+                <button class="tile green"  id="4" v-on:click="clickElement(4)" :disabled="gameButton.isDisabled"></button>
             </div>
             <div class="game-bar">
                 <div class="game-info">
@@ -47,6 +41,9 @@
                 button: {
 					isDisabled: false
                 },
+                gameButton: {
+                    isDisabled: false
+                },
                 audio: {
                     src: ""
                 },
@@ -57,17 +54,24 @@
             startGame() {
                 this.radioInput.isDisabled = true
 				this.button.isDisabled = true
+				this.gameButton.isDisabled = true
                 for (let i = 0; i < this.round; i++) {
                     this.simonNumberSet.push(Math.floor(Math.random() * (5 - 1) + 1))
 				}
-                let  i = 1;
+                let i = 1;
+                let j = 0;
                 for(let elem of this.simonNumberSet) {
 					setTimeout( () => {
 						let element = document.getElementById(String(elem))
 						this.playSound(elem)
 						element.classList.add('active')
-                        setTimeout(() => {element.classList.remove('active')}, 300)
-                    }, this.level * i++)
+                        setTimeout(() => {
+                            element.classList.remove('active')
+                            j++
+                            if(j === this.simonNumberSet.length) this.gameButton.isDisabled = false
+                        }, 300)
+
+                    }, this.level * i++, j)
                 }
                 this.gameIsReady = true
             },
@@ -182,12 +186,13 @@
         -webkit-border-radius: 10px 10px 10px 10px
         border-radius: 10px 10px 10px 10px
         background: #6DABE8
-        border: none
         padding: 0.3em 0.6em
-        outline: none
     .game-info button:hover
         background: #78BCFF
-
+    .game-options
+        text-align: left
+        position: relative
+        left: 50px
     input[type="radio"], button, .tile
         cursor: pointer
     input[type="radio"]
@@ -198,9 +203,10 @@
         background: #c6c6c6
     .tile:active, button:active
         transform: scale(0.98)
-    .returnButton
-        text-align: center
     .active
         transform: scale(0.98)
         filter: contrast(2)
+    button
+        outline: none
+        border: none
 </style>
